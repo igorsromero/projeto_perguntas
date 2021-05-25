@@ -1,33 +1,47 @@
 import 'package:flutter/material.dart';
-import './questao.dart';
-import './resposta.dart';
+import './questionario.dart';
+import './resultado.dart';
 
 main() => runApp(new PerguntaApp());
 
 class _PerguntaAppState extends State<PerguntaApp> {
   var _perguntaSelecionada = 0;
-
-  final List<Map> _perguntas = const [
+  var _pontuacaoTotal = 0;
+  final _perguntas = const [
     {
-      'texto': 'Qual é sua cor favorita?',
-      'respostas': ['Preto', 'Vermelho', 'Verde', 'Branco'],
+      'texto': 'Quanto é 2+2?',
+      'respostas': [
+        {'texto': '2', 'pontuacao': 0},
+        {'texto': '4', 'pontuacao': 10},
+        {'texto': '6', 'pontuacao': 0},
+        {'texto': '8', 'pontuacao': 0},
+      ],
     },
     {
-      'texto': 'Qual é o seu animal favorito?',
-      'respostas': ['Coelho', 'Cobra', 'Elefante', 'Leão'],
+      'texto': 'Quanto é 2+2*2?',
+      'respostas': [
+        {'texto': '2', 'pontuacao': 0},
+        {'texto': '4', 'pontuacao': 0},
+        {'texto': '6', 'pontuacao': 10},
+        {'texto': '8', 'pontuacao': 0},
+      ],
     },
-    {
-      'texto': 'Qual é o seu amorzinho?',
-      'respostas': ['Nathália', 'Natalia', 'Natholia', 'Natolina'],
-    }
   ];
 
-  void _responder() {
+  void _responder(int pontuacao) {
     if (temPerguntaSelecionada) {
       setState(() {
         _perguntaSelecionada++;
+        _pontuacaoTotal += pontuacao;
       });
     }
+  }
+
+  void _reiniciarQuestionario() {
+    setState(() {
+      _perguntaSelecionada = 0;
+      _pontuacaoTotal = 0;
+    });
   }
 
   bool get temPerguntaSelecionada {
@@ -36,23 +50,18 @@ class _PerguntaAppState extends State<PerguntaApp> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> respostas = temPerguntaSelecionada
-        ? _perguntas[_perguntaSelecionada]['respostas']
-        : [''];
-
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Center(child: Text('Perguntas')),
+          title: Text('Perguntas'),
         ),
         body: temPerguntaSelecionada
-            ? Column(
-                children: [
-                  Questao(_perguntas[_perguntaSelecionada]['texto']),
-                  ...respostas.map((t) => Resposta(t, _responder)).toList(),
-                ],
+            ? Questionario(
+                perguntas: _perguntas,
+                perguntaSelecionada: _perguntaSelecionada,
+                quandoResponder: _responder,
               )
-            : null,
+            : Resultado(_pontuacaoTotal, _reiniciarQuestionario),
       ),
     );
   }
